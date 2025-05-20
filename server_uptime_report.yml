@@ -18,10 +18,10 @@
          create: yes
          line: |
                <table border=1>
-               <tr><th> Host Name</th> <td>{{ ansible_hostname }}</td></tr>
-               <tr><th> IP Address</th> <td> {{ ansible_all_ipv4_addresses }}</td></tr>
+               <tr><th> Host Name</th> <td> {{ ansible_hostname }}</td></tr>
+               <tr><th> IP Address</th> <td> {{ ansible_all_ipv4_addresses[0] }}</td></tr>
                <tr><th> OS Distribution</th> <td> {{ ansible_distribution }}</td></tr>
-               <tr><th> OS Version</th> <td> {{ ansible_distribution_version }}</td></tr>
+               <tr><th> OS Version</th><td> {{ ansible_distribution_version }}</td></tr>
                <tr><th> UP time</th> {{ conv }}</tr>
                </table>
 ...
