@@ -58,3 +58,4 @@ do
 done
 echo "</table></td></tr>" >> Health_check.html
 echo "<tr><td>log file ERROR Message</td><td>$LOG_File</td></tr>" >> Health_check.html
+echo "</table>" >> Health_check.html
