@@ -1,0 +1,28 @@
+---
+- name: write a playbook for server uptime report
+  hosts: localhost
+  connection: local
+  tasks:
+    - name: setup a variable and convert seconds to days
+      set_fact:
+        UP_TIME: "{{ (ansible_uptime_seconds // 86400) }}"
+
+    - name: compare the days with condition
+      set_fact:
+        #conv: "{{ UP_TIME if UP_TIME > 90 | int else {{ UP_TIME }}\"</td> }}"
+        conv: "{{ \"<td style=background-color:red> {{ UP_TIME }} days\"  if UP_TIME | int > 90 else \"<td style=background-color:MediumSeaGreen> {{ UP_TIME }} days</td>\" }}"
+
+    - name: Add a content in a file
+      lineinfile:    
+         path: server_uptime_report.html 
+         create: yes
+         line: |
+               <table border=1>
+               <tr><th> Host Name</th> <td>{{ ansible_hostname }}</td></tr>
+               <tr><th> IP Address</th> <td> {{ ansible_all_ipv4_addresses }}</td></tr>
+               <tr><th> OS Distribution</th> <td> {{ ansible_distribution }}</td></tr>
+               <tr><th> OS Version</th> <td> {{ ansible_distribution_version }}</td></tr>
+               <tr><th> UP time</th> {{ conv }}</tr>
+               </table>
+...
+
