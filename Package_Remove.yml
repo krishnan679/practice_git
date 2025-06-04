@@ -1,0 +1,22 @@
+---
+- name: write a playbook to check list of servers is present
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: To install two package
+      zypper:
+          name:
+              - apache2
+              - docker
+          state: absent
+      register: ser
+      become: true
+
+    - debug: var=ser
+
+    - name: display a message
+      debug:
+        msg: "Given packages are removed"
+      when: ser is defined
+...
