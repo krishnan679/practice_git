@@ -1,0 +1,68 @@
+---
+- name: write a playbook to enter and roll back a value
+  gather_facts: false
+  hosts: localhost
+  connection: local
+  become: true
+  vars_prompt:
+    - name: operation
+      prompt: Enter the operation
+      private: false
+    - name: key
+      prompt: Enter the key
+      private: false
+    - name: key_value
+      prompt: Enter the key value
+      private: false
+    - name: key_file
+      prompt: Enter the file name
+      private: false
+  tasks:
+    - name: back up data collection command
+      shell: sysctl -a
+      register: backup_file
+
+    - name: write a content in file
+      lineinfile:
+        path: /tmp/collection.txt
+        create: yes
+        line: "{{ item }}"
+      with_items:
+        - "{{ backup_file.stdout_lines }}"
+      when: backup_file.rc==0
+      run_once: true 
+
+    - name: write a content in file
+      lineinfile:
+        path: /tmp/{{ key_file }}.txt
+        create: yes
+        insertafter: EOF
+        line: "{{ key }} {{ key_value }}"
+      when: operation == 'execute'
+
+    - block:
+      - name: pick a original data
+        shell: grep "vm.swap" /tmp/{{ key_file }}.txt
+        register: original
+        ignore_errors: true
+
+      - name: hash a present line
+        shell: sed -i "s/{{ original.stdout }}/#{{ original.stdout }}/g" /tmp/{{ key_file }}.txt
+        register: duplicate
+        when: original.rc==0
+        ignore_errors: true
+
+      - name: pick a backup data
+        shell: grep "vm.swappiness" /tmp/collection.txt
+        register: swap
+        ignore_errors: true
+
+      - name: roll back a content in file
+        lineinfile:
+           path: /tmp/{{ key_file }}.txt
+           insertafter: EOF
+           line: "{{ swap.stdout }}"
+      when: operation == 'rollback'
+...
+
+
